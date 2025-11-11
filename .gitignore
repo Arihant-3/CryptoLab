@@ -12,6 +12,7 @@ crypt/
 venv/
 env/
 .idea/
+idea.md
 
 # VSCode
 .vscode/
