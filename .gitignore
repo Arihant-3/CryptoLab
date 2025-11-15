@@ -13,6 +13,9 @@ venv/
 env/
 .idea/
 idea.md
+rough/
+Notes.md
+Plan.md
 
 # VSCode
 .vscode/
