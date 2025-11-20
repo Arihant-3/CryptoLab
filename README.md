@@ -3,15 +3,17 @@
 ```
 ✅ **Current Status**
 
-The *User Section* is complete.
+The *Notes section* supports:
 
-Users can:
+- Creating encrypted notes
+- Viewing decrypted notes
+- Editing with persisted session state
+- Deleting notes
+- Securely managing everything with user-specific AES keys
 
-- Register securely
-- Have their keys safely generated and stored
-- Authenticate using salted password hashes
+Notes are fully functional and integrated with the user authentication layer.
 
-Next phase -> *Notes Section*: implementing AES-based encryption/decryption using the user's RSA-managed DEK.
+Next phase -> *Vault Module*: Implementing storage for User secrets as per services.
 ```
 
 This repository marks the **starting point** of my cryptography learning journey using Python.
@@ -57,7 +59,7 @@ Each user gets a unique RSA key pair (public/private) generated during registrat
 
 ---
 
-### 🗄️ **Database Schema (Users Collection)**
+#### 🗄️ **Database Schema (Users Collection)**
 
 | Field | Type | Description |
 | --- | --- | --- |
@@ -70,7 +72,7 @@ Each user gets a unique RSA key pair (public/private) generated during registrat
 
 ---
 
-### 🧩 **Security Hierarchy**
+#### 🧩 **Security Hierarchy**
 
 ```
 [ Master Key 🔑 ]
@@ -101,5 +103,66 @@ Encrypts
 ```
 ---
 ---
+
+
+### 🗒️ **Notes Module Overview**
+
+The **Notes module** handles secure note storage and retrieval in CryptoLab using AES-GCM encryption.
+
+Each note is encrypted using a **user-specific DEK (AES key)** which is itself protected by RSA.
+
+This ensures:
+
+- Only the correct user can decrypt their notes
+- No plaintext notes ever touch MongoDB
+- Notes remain secure even if the database leaks
+
+---
+
+#### 🔐 **Core Features**
+
+- **AES-GCM Encryption** — Each note is encrypted using AES-256-GCM for confidentiality + integrity.
+- **User-Specific DEK** — The DEK is unique per user and decrypted at login using their RSA private key.
+- **RSA-Protected Metadata** — The DEK is stored encrypted under the user’s RSA public key.
+- **Full CRUD Support** — Users can add, view, edit, and delete their encrypted notes.
+- **Tamper Detection** — Stored SHA-256 digest ensures that modified ciphertext can be detected.
+- **Secure ObjectId Linking** — Notes are linked to the user via `owner_id` (MongoDB ObjectId).
+
+---
+
+#### 🗄️ **Database Schema (Notes Collection)**
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `owner_id` | ObjectId | User who owns the note |
+| `encrypted_content` | str | AES-GCM encrypted text (base64) |
+| `nonce` | str | 96-bit AES nonce (base64) |
+| `sha256` | str | Integrity hash of plaintext |
+| `created_at` | str | Timestamp |
+| `updated_at` | str | Timestamp (optional) |
+
+---
+
+#### ⚙️ **Encryption Flow**
+
+```
+Login → Decrypt private.pem → Decrypt RSA-encrypted DEK → Get AES key
+→ AES-GCM encrypt/decrypt notes → Store ciphertext + nonce + hash
+
+```
+
+```
+### In a Nutshell:
+
+- Added AES-256-GCM encryption/decryption for notes
+- Integrated RSA-based DEK decryption on login
+- Implemented create, view, update, delete note flows
+- Added session state management for edit/update stability
+- Linked notes to users via owner_id ObjectId
+- Ensured all notes remain encrypted in MongoDB
+```
+---
+---
+
 
 
