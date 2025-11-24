@@ -3,17 +3,15 @@
 ```
 ✅ **Current Status**
 
-The *Notes section* supports:
+The *Vault module is complete* with:
 
-- Creating encrypted notes
-- Viewing decrypted notes
-- Editing with persisted session state
-- Deleting notes
-- Securely managing everything with user-specific AES keys
+- Full AES-GCM encrypted storage
+- Stable CRUD operations
+- Clean service-based organization
+- Strong password checks
+- Proper UI state management
 
-Notes are fully functional and integrated with the user authentication layer.
-
-Next phase -> *Vault Module*: Implementing storage for User secrets as per services.
+Next phase -> *File Module*: Implementing storage for all kinds of files.
 ```
 
 This repository marks the **starting point** of my cryptography learning journey using Python.
@@ -40,7 +38,7 @@ Practiced alongside concepts from a YouTube course on practical cryptography to 
 ---
 ---
 
-### 🔐 **Users Module Overview**
+## 🔐 **Users Module Overview**
 
 The **Users module** handles secure user registration, authentication, and cryptographic key management in CryptoLab.
 
@@ -48,7 +46,7 @@ Each user gets a unique RSA key pair (public/private) generated during registrat
 
 ---
 
-#### 🧠 **Core Features**
+### 🧠 **Core Features**
 
 - **Secure Registration** — User passwords are hashed using `bcrypt` with unique salts.
 - **RSA Key Pair Generation** — Each user receives a fresh 2048-bit RSA key pair.
@@ -59,7 +57,7 @@ Each user gets a unique RSA key pair (public/private) generated during registrat
 
 ---
 
-#### 🗄️ **Database Schema (Users Collection)**
+### 🗄️ **Database Schema (Users Collection)**
 
 | Field | Type | Description |
 | --- | --- | --- |
@@ -105,7 +103,7 @@ Encrypts
 ---
 
 
-### 🗒️ **Notes Module Overview**
+## 🗒️ **Notes Module Overview**
 
 The **Notes module** handles secure note storage and retrieval in CryptoLab using AES-GCM encryption.
 
@@ -119,7 +117,7 @@ This ensures:
 
 ---
 
-#### 🔐 **Core Features**
+### 🔐 **Core Features**
 
 - **AES-GCM Encryption** — Each note is encrypted using AES-256-GCM for confidentiality + integrity.
 - **User-Specific DEK** — The DEK is unique per user and decrypted at login using their RSA private key.
@@ -130,7 +128,7 @@ This ensures:
 
 ---
 
-#### 🗄️ **Database Schema (Notes Collection)**
+### 🗄️ **Database Schema (Notes Collection)**
 
 | Field | Type | Description |
 | --- | --- | --- |
@@ -164,5 +162,94 @@ Login → Decrypt private.pem → Decrypt RSA-encrypted DEK → Get AES key
 ---
 ---
 
+## 🔐 **Password Vault Module Overview**
 
+The **Vault module** adds a secure, AES-GCM encrypted password manager inside CryptoLab.
+
+Every stored password is encrypted using the user’s DEK (Data Encryption Key), which itself is protected by the user’s RSA-encrypted key hierarchy.
+
+This ensures that **no plaintext password is ever stored in MongoDB or exposed in transit**.
+
+---
+
+### 🧠 **Core Features**
+
+- **AES-GCM Encryption**
+    
+    Every password is encrypted using AES-256-GCM with a fresh 96-bit nonce.
+    
+- **DEK-Based Encryption**
+    
+    Passwords are encrypted with the user's DEK, which is decrypted only after login via RSA.
+    
+- **Service-Based Organization**
+    
+    Each password belongs to a unique service (e.g., Gmail, GitHub).
+    
+    Services act as identifiers for CRUD operations in V1.
+    
+- **Password Strength Checker**
+    
+    Integrated `zxcvbn` scoring with feedback ensures strong passwords before saving.
+    
+- **Full CRUD Support**
+    - Add encrypted passwords
+    - View (decrypt in-memory only)
+    - Edit and re-encrypt
+    - Delete entries
+        
+        All operations stay encrypted at rest.
+        
+- **Zero Plaintext Storage**
+    
+    Neither MongoDB nor server-side logic ever handles or stores raw passwords.
+    
+
+---
+
+### 🗄️ **Database Schema (Vault Collection)**
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `owner_id` | `ObjectId` | References the user who owns the entry |
+| `service` | `str` | Name of the service (unique per user in V1) |
+| `username` | `str` | Username/email for the service |
+| `url` | `str` | URL of the service |
+| `password_encrypted` | `str (Base64)` | AES-GCM ciphertext |
+| `nonce` | `str (Base64)` | AES-GCM nonce used for encryption |
+| `created_at` | `str` | Timestamp |
+
+---
+
+#### 🧩 **Security Flow**
+
+```
+User Login
+    ↓
+Master Key → decrypts → Private Key (PEM)
+    ↓
+Private Key → decrypts → User DEK (AES key)
+    ↓
+DEK → encrypt/decrypt → Vault Passwords (AES-GCM)
+
+```
+
+This ensures:
+
+- Only the logged-in user can decrypt their vault
+- No password is ever stored or transmitted in plaintext
+- Database leaks reveal only AES-GCM ciphertext
+
+```
+### In a Nutshell:
+
+- Added AES-256-GCM encrypted passwords
+- Strength validation using zxcvbn
+- Service-based organization
+- View / Edit / Delete with in-memory decryption
+- Clean UI & exact-match logic
+- Zero plaintext stored in DB
+```
+---
+---
 
