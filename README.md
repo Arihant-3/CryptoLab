@@ -3,15 +3,16 @@
 ```
 ✅ **Current Status**
 
-The *Vault module is complete* with:
+The *Files Section* is complete.
 
-- Full AES-GCM encrypted storage
-- Stable CRUD operations
-- Clean service-based organization
-- Strong password checks
-- Proper UI state management
+Users can:
+- Upload files securely
+- Store encrypted files in GridFS
+- Download them with AES-GCM decryption
+- Verify file integrity
+- Delete files safely
 
-Next phase -> *File Module*: Implementing storage for all kinds of files.
+Next phase -> *UI Revamp / Multi-Page Streamlit layout*.
 ```
 
 This repository marks the **starting point** of my cryptography learning journey using Python.
@@ -253,3 +254,86 @@ This ensures:
 ---
 ---
 
+## 📁 **Files Module Overview**
+
+The **Files module** adds encrypted file storage to CryptoLab using **AES-GCM encryption** and **MongoDB GridFS**.
+
+Files are encrypted client-side using the user’s DEK before storage, ensuring **zero plaintext exposure** anywhere in the database.
+
+All files stored inside `fs.files` and `fs.chunks` remain encrypted and integrity-verified.
+
+---
+
+### 🧠 **Core Features**
+
+- **AES-256-GCM Encryption**
+    
+    Each file is encrypted using a 32-byte DEK generated during user registration.
+    
+- **Secure File Uploads**
+    
+    Uploaded files are never stored in plaintext — only encrypted bytes + metadata go to GridFS.
+    
+- **GridFS Storage Structure**
+    - `fs.files` → Stores metadata (filename, content_type, uploaded_at, owner_id, sha256)
+    - `fs.chunks` → Stores encrypted byte chunks
+- **Integrity Checking**
+    
+    SHA-256 hash of the original file ensures that decrypted output always matches the original.
+    
+- **User-Scoped Filestore**
+    
+    Files are tied to the authenticated user via `owner_id`.
+    
+- **Encrypted File Downloading**
+    
+    Files are decrypted on-demand using AES-GCM and offered for download.
+    
+- **Complete CRUD**
+    - Upload
+    - View metadata
+    - Download (requires login)
+    - Delete
+
+---
+
+### 🗄️ **GridFS Metadata Schema**
+
+Each entry inside `fs.files` contains:
+
+| Field | Description |
+| --- | --- |
+| `filename` | Saved file name (with `.enc` extension) |
+| `metadata.owner_id` | User who uploaded the file |
+| `metadata.original_filename` | Name before encryption |
+| `metadata.content_type` | MIME type |
+| `metadata.sha256` | Integrity hash of original file |
+| `metadata.encrypted` | Always `True` |
+| `metadata.uploaded_at` | Timestamp |
+
+---
+
+#### 🔒 **Encryption Flow**
+
+```
+[ Raw File Data ]
+        ↓
+AES-GCM Encrypt (using DEK)
+        ↓
+[ Encrypted Bytes ]
+        ↓
+Stored Into GridFS (fs.files + fs.chunks)
+
+```
+
+```
+### In a Nutshell:
+
+- AES-256-GCM encryption for all uploaded files
+- GridFS integration (fs.files + fs.chunks)
+- File metadata (owner_id, SHA256, MIME type, timestamps)
+- Encrypted upload, download, integrity check, and delete actions
+```
+
+---
+---
