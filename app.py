@@ -246,13 +246,20 @@ if st.button("Delete My Account Permanently"):
         # 1) Delete user's notes
         note_ingestion.collection.delete_many({"owner_id": ObjectId(user_id)})
 
-        # 2) Delete user
+        # 2) Delete vault
+        vault_ingestion.collection.delete_many({"owner_id": ObjectId(user_id)})
+        
+        # 3) Delete files by file_id
+        for file in file_ingestion.get_files_list(owner_id=ObjectId(user_id)):
+            file_ingestion.delete_from_gridfs(file['_id'])
+        
+        # 4) Delete user
         user_ingestion.collection.delete_one({"_id": ObjectId(user_id)})
 
-        # 3) Clear session and refresh
+        # Clear session and refresh
         st.session_state.clear()
 
-        st.success("Your account and all notes were deleted permanently.")
+        st.success("Your account and their data were deleted permanently.")
         
         time.sleep(1)
         st.rerun()
@@ -281,7 +288,6 @@ else:
     if services:
         service = st.selectbox("Select a service:", services, key="service", placeholder='Service')
     else:
-        st.info("No saved passwords yet.")
         service = None
     
     # ---- FETCH PASSWORDS ----

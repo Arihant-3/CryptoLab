@@ -11,12 +11,7 @@ build/
 crypt/
 venv/
 env/
-.idea/
-idea.md
-future.md
 rough/
-Notes.md
-Plan.md
 
 # VSCode
 .vscode/
