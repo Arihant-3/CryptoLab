@@ -1,40 +1,43 @@
-# 🔐 CryptoLab 
+# 🔐 CryptoLab [Encrypted Notes, Vault & File Storage]
 
 ```
-✅ **Current Status**
+✔️ CryptoLab Is a Learning Project
 
-The *Files Section* is complete.
+CryptoLab is built purely for education and demonstration.
+Although it uses strong cryptography (AES-GCM, RSA-2048, bcrypt),
+it is not audited and must not be used to store real secrets.
 
-Users can:
-- Upload files securely
-- Store encrypted files in GridFS
-- Download them with AES-GCM decryption
-- Verify file integrity
-- Delete files safely
-
-Next phase -> *UI Revamp / Multi-Page Streamlit layout*.
+If you clone/run this, treat it as a practice cryptography environment,
+not a substitute for real password managers.
 ```
 
-This repository marks the **starting point** of my cryptography learning journey using Python.
+**CryptoLab** is a **client-side encrypted workspace** built with Python, MongoDB & Streamlit.
 
-Currently, it contains a collection of **practice scripts** that explore:
-- File hashing
-- AES encryption/decryption
-- RSA key-based encryption
-- Password hashing and verification
+It includes:
 
-> 🧩 These scripts are part of my ongoing learning.  
-> The project will evolve into a structured application as I progress further.
+- 🗒️ **Encrypted Notes (AES-GCM)**
+- 🔑 **Password Vault (AES-GCM + Strength Checker)**
+- 📁 **Encrypted File Storage (AES-GCM + GridFS)**
+- 🧬 **Hybrid Crypto Model (RSA + AES DEK)**
+- 🎛️ **Custom UI Navigation (Streamlit multipage)**
+
+All encryption happens **locally**.
+
+MongoDB stores **only ciphertext**, never plaintext.
+
+> I've also included [Notes](assets/build_notes.md), where I documented the key errors and problems I faced throughout the build, along with how I solved them.
 
 ---
 
 ### 📁 Folder
 - **practice/** → current working scripts and test files
+It contains a collection of **practice scripts** that explore:
+- File hashing
+- AES encryption/decryption
+- RSA key-based encryption
+- Password hashing and verification
 
----
-
-### 🎥 Learning Source
-Practiced alongside concepts from a YouTube course on practical cryptography to understand AES, RSA, and hashing fundamentals.
+> 🧩 These scripts are part of this project.
 
 ---
 ---
@@ -336,4 +339,29 @@ Stored Into GridFS (fs.files + fs.chunks)
 ```
 
 ---
+---
+
+## 🎥 Learning Source
+Practiced alongside concepts from a YouTube course on practical cryptography to understand AES, RSA, and hashing fundamentals.
+
+---
+
+## ⚠️ Caveat — This is NOT a Production Password Manager
+
+Before anything else:
+
+> 🚨 CryptoLab is a learning project / demo prototype.
+It is not designed, tested, or audited for real-world password-manager security.
+Do not use it to store actual sensitive or high-value data.
+> 
+
+If one day you decide to turn this into a real product:
+
+- Get **independent cryptography audits**
+- Undergo **penetration testing**
+- Implement **secure deployment, key rotation & zero-knowledge guarantees**
+- Add **formal threat modeling**
+
+Right now, CryptoLab is **for education, portfolio, and demonstration**.
+
 ---

@@ -1,4 +1,5 @@
 import os 
+import streamlit as st
 import base64
 from pymongo import MongoClient
 import bcrypt
@@ -12,8 +13,7 @@ from services.constant.collection_pipeline import (
 from datetime import datetime
 
 # Read the master key
-with open("master.key", "r") as f:
-    master_key = f.read()
+master_key = st.secrets["MASTER_KEY"]
 
 class UserIngestion:
     def __init__(self, client):
