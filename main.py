@@ -27,7 +27,7 @@ if st.session_state.page != choice:
             
         elif st.session_state.page == "Login":
             login_page()
-            
+            st.info("You can access your notes, vault, and files after login in the sidebar(left '>>')")
             st.divider()
             
             col1, col2 = st.columns(2)
